@@ -1,0 +1,155 @@
+/* Disclamer
+	* Author : Segan Salomon
+	* email  : segan.salomon@he-arc.ch
+	* date	 : april-may 2018
+
+	see main.js for more informations !
+*/
+.stylizedButton
+{
+  background-color: #4CAF50; /* Green */
+
+  font-size: 17px;
+  text-align: center;
+  text-decoration: none;
+  color: white;
+
+  width: 100%;
+  padding: 10px 20px;
+  border: none;
+
+  display: inline-block;
+}
+
+.stylizedButton:hover
+{
+  background-color: #3C5F30; /* Green */
+}
+
+.stylizedButton:active
+{
+  background-color: #1C3F10; /* Green */
+}
+
+.wrap {
+  border: 1px;
+  border-style: ridge;
+  display: flex;
+}
+
+.kit {
+  display: inline-block;
+  width: 100%;
+}
+
+.separator {
+  float: left;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left:3%;
+  margin-right:3%;
+  width: 94%;
+  border: 1px;
+  border-style: inset;
+}
+
+div#main-wrap {
+  overflow: hidden;
+  display: flex;
+  min-height: 100%;
+  height: 100%;
+}
+
+div#left-wrap {
+  float: left;
+  width: 30%;
+  margin-right: 10px;
+  min-width: 350px;
+}
+
+div#central-wrap {
+  width: 70%;
+}
+
+div#right-wrap {
+  float: right;
+  width: 30%;
+  margin-left: 10px;
+  min-width: 350px;
+}
+
+div#control {
+  padding: 10px;
+}
+
+div#control-buttons table {
+  width: auto;
+}
+
+div#control-buttons td {
+  margin: 0px;
+  padding: 0px;
+  width: 200px;
+}
+
+div#control-step-spinBoxes {
+  width: 65%;
+  float: left;
+}
+
+div#control-step-buttons {
+  width: 35%;
+  float: right;
+}
+
+div#control-step-buttons button {
+  margin-bottom: 5px;
+}
+
+div#simulator {
+  width: 100%;
+  height: 100%;
+}
+
+div#simulator-internal {
+  float: left;
+  display: inline;
+}
+
+canvas#canvas {
+  width: inherit;
+  height: inherit;
+}
+
+div#creation-kit-tools {
+  width: 60%;
+  float: left;
+}
+
+table#simuInfoArray {
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+
+table#simuInfoArray td, th{
+  border: 1px;
+  border-style: solid;
+  min-width: 60px;
+  max-width: 60px;
+}
+
+div#creation-kit-buttons {
+  width: 35%;
+  float: right;
+}
+
+div#creation-kit-buttons button {
+  min-width: 100%;
+}
+
+div#about {
+  padding: 50px;
+  display: inline-block;
+  margin-top: 10px;
+}

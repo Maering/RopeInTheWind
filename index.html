@@ -1,0 +1,315 @@
+<!-- Disclamer
+	* Author : Segan Salomon
+	* email  : segan.salomon@he-arc.ch
+	* date	 : april-may 2018
+
+	see main.js for more informations !
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Numerical algorithm - Personal project - A rope in the wind</title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="main-wrap">
+			<div id="left-wrap" class="wrap">
+				<div id="control" class="config">
+					<h1>A rope in the wind©</h1>
+					<h3>By Segan Salomon, April-May 2018</h3>
+					<div class="separator"></div>
+					<div id="control-buttons" class="container">
+						<table>
+							<tr>
+							 <td><button type="button" class="stylizedButton" id="btnStartStop" onclick="startStopSimulation()">Start</button></td>
+							 <td><button type="button" class="stylizedButton" id="btnPauseResume" onclick="pauseResumeSim()">Pause</button></td>
+							 <td><button type="button" class="stylizedButton" id="btnResetPage" onclick="resetAll()">Reset</button></td>
+						 </tr>
+						</table>
+					</div>
+					<div class="separator"></div>
+					<div id="control-step" class="kit">
+						<div id="control-step-spinBoxes">
+							<table>
+								<tr>
+									<td>
+										<label>Fixed deltaT</label>
+										<input type="checkbox" id="chbSwitchMode" onclick="readConfigSimulationTimeStepMode()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Time (in ms) between update</legend>
+										<input  type="number" id="spinBoxStepMS"  min=4 value=16 step=1 max=60 onchange="readConfigSimulationFixedDeltaT()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Target refresh rate</legend>
+										<input  type="number" id="spinBoxHertz"   min=1 value=60 step=1 max=120 onchange="readConfigSimulationRefreshRate()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Accuracy (number of loop)</legend>
+										<input type="number" id="spinBoxAccuracy" min=1.0 value=3 max=10 step=1 onchange="readConfigSimulationAccuracy()"/>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div id="control-step-buttons">
+							<button type="button" class="stylizedButton" id="btnStemSim" onclick="stepSimulation()">Step</button>
+							<button type="button" class="stylizedButton" id="btnFlushSim" onclick="flushSimulation()">Flush</button>
+							<table>
+								<tr>
+									<td><input type="checkbox" id="chbShowNode" onclick="readConfigRenderShowNode()"/></td>
+									<td>Show nodes</td>
+								</tr>
+								<tr>
+									<td><input type="checkbox" id="chbShowWind" onclick="readConfigRenderShowWind()"/></td>
+									<td>Show wind vectors</td>
+								</tr>
+								<tr>
+									<td><input type="checkbox" id="chbShowGrid" onclick="readConfigRenderWindGrid()"/></td>
+									<td>Show wind grid</td>
+								</tr>
+							</table>
+						</div>
+						<div class="separator"></div>
+						<div id="wind-kit" class="kit">
+							<h3>Wind config</h3>
+							<table>
+								<tr>
+									<td>Grid size</td>
+									<td><input type="number" id="spinBoxWindSize" 	min=12 value=36 step=1 max=50 onchange="readConfigWindCellSize()"/></td>
+									<td><i>(Take place on reset)</i></td>
+								</tr>
+								<tr>
+									<td>Chaos factor</td>
+									<td><input type="number" id="spinBoxWindZ" 			min=1 value=17  step=1 max=30 onchange="readConfigWindChaosFactor()"/></td>
+									<td><i>(Evolution step of the wind)</i></td>
+								</tr>
+								<tr>
+									<td>Speed factor</td>
+									<td><input type="number" id="spinBoxWindForce" 	min=0 value=10 step=1 max=40 onchange="readConfigWindSpeedFactor()"/></td>
+									<td>(m/s)</td>
+								</tr>
+								<tr>
+									<td><p>Wind speed</p></td>
+									<td id="speedInKMH" style="font-style: oblique;"></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ________________________________ -->
+			<!-- ________ CENTRAL WRAP __________ -->
+			<!-- ________________________________ -->
+
+			<div id="central-wrap" class="wrap">
+				<div id="simulator">
+					<canvas id="canvas">
+					</canvas>
+				</div>
+			</div>
+
+			<!-- ______________________________ -->
+			<!-- ________ RIGHT WRAP __________ -->
+			<!-- ______________________________ -->
+
+			<div id="right-wrap" class="wrap">
+				<div id="control" class="config">
+					<div id="simualtor-info" class="kit">
+						<h3>Simulation informations</h3>
+						<p>
+							<i>If the fabric gets tangled, reduce the accuracy</i>
+							</br>
+							<i>Pause the simulation before switching tab in your browser</i>
+						</p>
+
+						<p id="ppmLabel"></p>
+						<div class="wrap">
+							<table id="simuInfoArray">
+								<tr>
+									<th>Step</th>
+									<th>FPS</th>
+									<th>Average update time</th>
+									<th>Average render time</th>
+								</tr>
+								<tr>
+									<td id="stepCountLabel"></td>
+									<td id="fpsLabel"></td>
+									<td id="averageUpdateTimeLabel"></td>
+									<td id="averageRenderTimeLabel"></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="separator"></div>
+					<div id="creation-kit" class="kit">
+						<h3>Creation kit</h3>
+						<div id="creation-kit-tools">
+							<table>
+								<tr>
+									<td>
+										<legend>x</legend>
+										<input type="number" id="spinBoxNewRopeX" min=0 value=100 step=1 onclick="readConfigNewRopePositionX()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>y</legend>
+										<input type="number" id="spinBoxNewRopeY" min=0 value=100 step=1 onclick="readConfigNewRopePositionY()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Rope length (mm)</legend>
+										<input type="number" id="spinBoxNewRopeLength" min=10 value=150 step=10 max=1000 onchange="readConfigNewRopeLength()"/>
+									</td>
+									<td</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Rope mass (g)</legend>
+										<input type="number" id="spinBoxNewNodeMass" min=10.0 value=500 step=10 max=10000 onchange="readConfigNewRopeMass()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Distance between nodes (mm)</legend>
+										<input type="number" id="spinBoxNewRopeDistance" 	min=5.0  value=15  step=5.00 max=100 onchange="readConfigNewRopeDistance()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input type="checkbox" id="checkBoxNewRopeBreakable" onclick="updateGUINewRopeBreakable();">Breakable</input>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Stiffness of the link</legend>
+										<input type="number" id="spinBoxNewRopeStiffness" min=0.05 value=0.5 step=0.05 max=001 onchange="readConfigNewRopeStiffness()"/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<legend>Tear sensitivity of the link (mm)</legend>
+										<input type="number" id="spinBoxNewRopeMaxDistance" min=10.0	 value=30  step=5.00 max=200 onchange="readConfigNewRopeMaxDistance()"/>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div id="creation-kit-buttons">
+							<button type="button" class="stylizedButton" id="btnCreateNewPointMass" onclick="createSimplePointMass()">New pointMass</button></p>
+							<button type="button" class="stylizedButton" id="btnCreateNewCable" onclick="createNewCable()">New cable</button></p>
+							<button type="button" class="stylizedButton" id="btnCreateNewPendulum" onclick="createNewPendulum()">New pendulum</button></p>
+							<button type="button" class="stylizedButton" id="btnCreateNewCurtain" onclick="createNewCurtain()">New curtain</button></p>
+							<p><i>Simply click anywhere on the canvas to set a new position where newly created object will be anchored</i></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="about" class="wrap">
+			<h2>Documentation</h2>
+			<div id="formulas">
+				<h3>Formulas</h3>
+				<legend>Verlet integration</legend>
+				<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/dba52e53901d675d124e625e863968e5e8a8f3da"/>
+				<legend>Wind equation</legend>
+				<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/5b3bf12f95f6d0174755a9248ba34e638cf90310"/>
+				<div>
+					<h4>Explanation</h4>
+					<p>Drag depends on the properties of the fluid and on the size, shape, and speed of the object. One way to express this is by means of the drag equation:</p>
+					<ul>
+						<li>FD is the drag force,</li>
+						<li>ρ  is the density of the fluid,</li>
+						<li>v  is the speed of the object relative to the fluid,</li>
+						<li>A  is the cross sectional area, and</li>
+						<li>CD is the drag coefficient – a dimensionless number. 0.42 for a half sphere</li>
+					</ul>
+					<p>Air density = 1.29</p>
+					<p>4 pi = 12.566370614</p>
+					<p>half spherical object area = 4 * pi * radius * radius</p>
+
+					<ul>
+						<li>FORMULA => F = 0.5 * 1.29 * (vObject - vWind)^2 * 0.42 * 4pi*radius^2</li>
+						<li>FORMULA => F = 0.2709 * 12.5663 * (vObject - vWind)^2 * radius^2</li>
+						<li>FORMULA => F = 3.40421067 * (vObject - vWind)^2 * radius^2</li>
+					</ul>
+
+					<p>Finally multiply the squared speed by FORMULA to obtain the vector of FD</p>
+					<i>Please remember that the force MUST be opposed to the direction the object is facing</i>
+				</div>
+			</div>
+			<div class="separator"></div>
+			<div id="informations">
+				<h3>Informations</h3>
+				<p>If you are a developper, please read the Disclamer of main.js for more informations</p>
+			</div>
+			<div class="separator"></div>
+			<div id="licence">
+				<h3>Licence</h3>
+				<p>Copyright 2018 Segan Salomon</p>
+					<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+					<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+					<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+				</p>
+			</div>
+			<div class="separator"></div>
+			<div id="references">
+				<h3>References and sources</h3>
+				<ul>
+					<li><a href="https://en.wikipedia.org/wiki/Verlet_integration">Verlet integration</a></li>
+					<li><a href="https://en.wikipedia.org/wiki/Drag_equation">Air friction</a></li>
+				 	<li><a href="http://lonesock.net/article/verlet.html">Verlet</a></li>
+					<li><a href="https://www.gamedev.net/articles/programming/math-and-physics/a-verlet-based-approach-for-2d-game-physics-r2714/">More Verlet</a></li>
+				 	<li><a href="https://gamedevelopment.tutsplus.com/tutorials/simulate-tearable-cloth-and-ragdolls-with-simple-verlet-integration--gamedev-519">MOAR Verlet</a></li>
+					<li><a href="https://www.youtube.com/watch?v=3HjO_RGIjCU">Coding math</a></li>
+					<li><a href="https://codepen.io/DonKarlssonSan/post/particles-in-simplex-noise-flow-field">Wind with Perlin noise</a></li>
+					<li><a href="http://hyperphysics.phy-astr.gsu.edu/hbase/airfri2.html#c2">Wind calculus</a></li>
+					<li><a href="http://www.southernropes.co.za/catalogue/physical-rope-properties.html">Rope properties</a></li>
+					<li><a href="https://jsperf.com/test-Math.floor-and-math-floor">Optimisation</a></li>
+				</ul>
+			</div>
+			<div class="separator"></div>
+			<div id="issues">
+				<h3>Known issues</h3>
+				<ul>
+					<li>Target refresh rate is ineffective</li>
+					<li>Curtain may tangle itself if accuray is greater than 1</li>
+					<li>After a reset, the value show in Grid Size for the wind is not related to the actual grid size</li>
+				</ul>
+			</div>
+		</div>
+	</body>
+
+	<!-- ___________________________ -->
+	<!-- ________ SCRIPTS __________ -->
+	<!-- ___________________________ -->
+
+	<script type="text/javascript" src="noise.js"></script>
+	<script type="text/javascript" src="wind.js"></script>
+	<script type="text/javascript" src="pointMass.js"></script>
+	<script type="text/javascript" src="link.js"></script>
+	<script type="text/javascript" src="watcher.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+	<script>
+		var sides = document.getElementById("simulator").getBoundingClientRect();
+		document.getElementById("canvas").onclick = (e) => {
+			// Here 'self' is simply the current window's context
+			var x = Math.floor((e.clientX - sides.left) + self.pageXOffset);
+			var y = Math.floor((e.clientY - sides.top) + self.pageYOffset);
+
+			setGUINewRopePositionX(x);
+			setGUINewRopePositionY(y);
+
+			readConfigNewRopePositionX();
+			readConfigNewRopePositionY();
+		};
+	</script>
+</html>
