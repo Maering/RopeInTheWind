@@ -15,6 +15,7 @@
   color: white;
 
   width: 100%;
+  margin-top: 10px; 
   padding: 10px 20px;
   border: none;
 
@@ -112,7 +113,6 @@ div#simulator {
 }
 
 div#simulator-internal {
-  float: left;
   display: inline;
 }
 
@@ -152,4 +152,236 @@ div#about {
   padding: 50px;
   display: inline-block;
   margin-top: 10px;
+}
+
+.ritw-rb {
+  display:inline;
+}
+
+.ritw-div-items h4 {
+  margin-top:0;
+}
+
+.ritw-div-items-selector {
+  float: left;
+  width:40%;
+}
+
+.ritw-div-items-selector p {
+  display:block;
+  margin : 0;
+  padding : 0;
+}
+
+.ritw-div-items-customization {
+  float: right;
+  width: 60%;
+}
+
+.ritw-div-items-customization label {
+  display: block;
+}
+
+.ritw-div-items-customization input {
+  width : 35%;
+}
+
+.ritw-div-items-customization span {
+  margin-top : 0;
+}
+
+.ritw-div-items-location {
+  float: left;
+  width: 100%;
+}
+
+.ritw-div-items-location label {
+  display: block;
+}
+
+.ritw-div-items-location input {
+  width : 50%;
+}
+
+.ritw-div-items-location span {
+  margin-top : 1rem;
+}
+
+.ritw-div-items canvas {
+  width : 100%;
+  border:dotted; 
+  border-width: thin;
+}
+
+/* Belows come from : https://codepen.io/raubaca/pen/PZzWRN */
+
+[type="checkbox"]:not(:checked),
+[type="checkbox"]:checked {
+  position: absolute;
+  opacity: 0.01;
+}
+[type="checkbox"]:not(:checked) + label,
+[type="checkbox"]:checked + label {
+  position: relative;
+  padding-left: 4.5em;
+  cursor: pointer;
+}
+[type="checkbox"]:not(:checked) + label:before,
+[type="checkbox"]:checked + label:before,
+[type="checkbox"]:not(:checked) + label:after,
+[type="checkbox"]:checked + label:after {
+  content: '';
+  position: absolute;
+}
+[type="checkbox"]:not(:checked) + label:before,
+[type="checkbox"]:checked + label:before {
+  left: 0; top: -.1em;
+  width: 4em; height: 1.85em;
+  background: #DDDDDD;
+  border-radius: 1em;
+  transition: background-color .2s;
+}
+[type="checkbox"]:not(:checked) + label:after,
+[type="checkbox"]:checked + label:after {
+  width: 1.4em; height: 1.4em;
+  transition: all .2s;
+  border-radius: 50%;
+  background: #7F8C9A;
+  top: .12em; left: .24em;
+}
+.text {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* on checked */
+[type="checkbox"]:checked + label:before {
+  background:#34495E; 
+}
+[type="checkbox"]:checked + label:after {
+  background: #39D2B4;
+  left: 2.4em;
+}
+
+[type="checkbox"]:checked + label .ui,
+[type="checkbox"]:not(:checked) + label .ui:before,
+[type="checkbox"]:checked + label .ui:after {
+  position: absolute;
+  left: .6em;
+  width: 6em;
+  border-radius: 1em;
+  font-size: .875em;
+  font-weight: bold;
+  transition: all .2s;
+}
+[type="checkbox"]:not(:checked) + label .ui:before {
+  content: "Hide";
+  top: .2em;
+  left: 2.35em; 
+}
+[type="checkbox"]:checked + label .ui:after {
+  content: "Show";
+  top: .2em;
+  left: .2em;
+  color: #39D2B4;
+}
+[type="checkbox"]:focus + label:before {
+  border: 1px dashed #777;
+  box-sizing: border-box;
+  margin-top: -1px;
+}
+
+/* radiobuttons from : https://codepen.io/tobiasdev/pen/XgegoO */
+
+.rb-box {
+  width: 80%;
+  max-width: 420px;
+  margin: 50px auto;
+  padding: 1.3em;
+  background: #292942;
+  border-radius: .75em;
+  -webkit-filter: drop-shadow(1px 2px 5px rgba(0,0,0,.3));
+  filter: drop-shadow(1px 2px 5px rgba(0,0,0,.3));
+  box-shadow: 
+    0 2px 2px rgba(243,49,128,.5),
+    0 0px 5px rgba(243,49,128,.15),
+    0 0px 4px rgba(0,0,0,.35),
+    0 5px 20px rgba(243,49,128,.25),
+    0 15px 50px rgba(243,49,128,.75),
+    inset 0 0 15px rgba(255,255,255,.05);
+}
+
+/* Custom Radio Button */
+
+.rb {
+  padding: 16px 0;
+  text-align: center;
+  background: rgba(255,255,255,.03);
+  border-radius: .3em;
+}
+
+.rb-tab {
+  display: inline-block;
+  position: relative;
+  width: 20%;
+}
+
+.rb-txt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: .5em;
+  color: #FFFFFF;
+}
+
+.rb-spot {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: 2px solid rgba(255,255,255,.3);
+  border-radius: 100%;
+  cursor: pointer;
+  transition: ease .5s;
+}
+
+.rb-tab-active .rb-spot {
+  background: rgba(0,0,0,.35);
+  border: 2px solid rgba(243,49,128,.6);
+}
+
+/* Sliders */
+
+.slider {
+  -webkit-appearance: none;
+  width: 35%;
+  height: 15px;
+  border-radius: 5px;  
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 25px;
+  border-radius: 50%; 
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 15px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
 }

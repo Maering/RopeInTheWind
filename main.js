@@ -39,27 +39,19 @@ function MetersToMillimeters(arg) {
 }
 
 // vars
-var canvas = document.getElementById("canvas"),
-		context = canvas.getContext("2d"),
-		width = canvas.width = Math.floor(document.getElementById("simulator").offsetWidth), //window.innerWidth,
-		height = canvas.height = Math.floor(document.getElementById("simulator").offsetHeight);//window.innerHeight;
+var canvas = document.getElementById("canvas");
+var	showcase = document.getElementById("ritw-div-showcase-canevas");
 
-// const
-var STRINGSTART = "Start";
-var STRINGSTOP = "Stop";
-var STRINGPAUSE = "Pause";
-var STRINGRESUME = "Resume";
+canvas.width = Math.floor(document.getElementById("simulator").offsetWidth), //window.innerWidth,
+canvas.height = Math.floor(document.getElementById("simulator").offsetHeight);//window.innerHeight;
+
+showcase.width = Math.floor(document.getElementById("ritw-div-showcase").offsetWidth), //window.innerWidth,
+showcase.height = Math.floor(document.getElementById("ritw-div-showcase").offsetHeight);//window.innerHeight;
 
 // GUI ref
 // CONTROLS
 var _gui_button_startStop = document.getElementById("btnStartStop");
 var _gui_button_pauseResume = document.getElementById("btnPauseResume");
-
-// CONTROLS parameters
-var _gui_checkBox_switchSimMode = document.getElementById("chbSwitchMode");
-var _gui_spinBox_fixedDeltaT = document.getElementById("spinBoxStepMS");
-var _gui_spinBox_refreshRate = document.getElementById("spinBoxHertz");
-var _gui_spinBox_simAccuracy = document.getElementById("spinBoxAccuracy");
 
 // Graphic parameters
 var _gui_checkBox_renderNodes = document.getElementById("chbShowNode");
@@ -77,25 +69,12 @@ var _gui_spinBox_ropeLength = document.getElementById("spinBoxNewRopeLength");
 var _gui_spinBox_ropeNodeMass = document.getElementById("spinBoxNewNodeMass");
 var _gui_spinBox_ropeStiffness = document.getElementById("spinBoxNewRopeStiffness");
 var _gui_spinBox_ropeDistance = document.getElementById("spinBoxNewRopeDistance");
-var _gui_spinBox_ropeMaxDistance = document.getElementById("spinBoxNewRopeMaxDistance");
-var _gui_checkBox_ropeBreakable = document.getElementById("checkBoxNewRopeBreakable");
 
 // WIND PARAMETERS
-var _gui_spinBox_windGridSize = document.getElementById("spinBoxWindSize");
 var _gui_spinBox_windEvolutionStep = document.getElementById("spinBoxWindZ");
 var _gui_spinBox_windForce = document.getElementById("spinBoxWindForce");
 
 // ___ VARS INIT ___ //
-
-var _simConfigSimulationIsFixed = false;
-var _simConfigSimulationRefreshRate = 0;
-var _simConfigSimulationFixedDeltaT = 0;
-var _simConfigSimulationAccuracy = 0;
-
-// config render
-var _simConfigRenderShowNodes = true;
-var _simConfigRenderShowWind = true;
-var _simConfigRenderWindGrid = false;
 
 // config new rope
 var _simConfigNewRopePositionX = 0;
@@ -103,13 +82,19 @@ var _simConfigNewRopePositionY = 0;
 var _simConfigNewRopeMass = 0;
 var _simConfigNewRopeLength = 0;
 var _simConfigNewRopeDistance = 0;
-var _simConfigNewRopeMaxDistance = 0;
-var _simConfigNewRopeStiffness = 0;
 
-// config wind
-var _simConfigWindCellSize = 0;
-var _simConfigWindChaosFactor = 0;
-var _simConfigWindSpeedFactor = 0;
+// CONST
+var NODEVALUE = "node";
+var ROPEVALUE = "rope";
+var CURTAINVALUE = "curtain";
+var PENDULUMVALUE = "pendulum";
+
+// simulation
+var _simArrayObjects = [];
+var _simPhysics = new PhysicEngine(canvas);
+
+// showcase simulation
+var _simPhysicsShowCase = new PhysicEngine(showcase);
 
 // init vars
 init();
@@ -126,47 +111,65 @@ setInterval(function() {
 	}
 }, 10);
 
-// simulation
-var _simArrayObjects = [];
-var _simPhysics = new PhysicEngine();
-
-// load some new values in objects
-loadConfig();
-
 /* ------------------------- *\
 |* ---- CONTROL METHODS ---- *|
 \* ------------------------- */
 
 function init() {
 
-	// gui update
-	updateGUINewRopeBreakable();
-
-	// simulation
-	setGUISimulationTimeStepMode(false);
-	setGUISimulationFixedDeltaT(16);
-	setGUISimulationRefreshRate(60);
-	setGUISimulationAccuracy(5);
-
-	// render
-	setGUIRenderShowNode(true);
-	setGUIRenderShowWind(true);
-	setGUIRenderWindGrid(false);
-
-	setGUINewRopePositionX(Math.floor(width / 2));
-	setGUINewRopePositionX(Math.floor(width / 4));
+	setGUINewRopePositionX(Math.floor(canvas.width / 2));
+	setGUINewRopePositionY(Math.floor(canvas.height / 4));
 	setGUINewNodeMass(500);
 	setGUINewRopeLength(150);
-	setGUINewRopeStiffness(0.5);
-	setGUINewRopeMaxDistance(30);
 	setGUINewRopeDistance(15);
 
-	//wind
-	setGUIWindCellSize(36);
-	setGUIWindChaosFactor(17);
-	setGUIWindSpeedFactor(10);
-
 	loadConfig();
+
+	// disable vectors rendering
+	_simPhysicsShowCase.wind.displayVectors = false;
+	updateShowCase();
+}
+
+function updateShowCase()
+{
+	// flush showcase so we display only one element
+	_simPhysicsShowCase.flush();
+
+	// start the engine if it is stopped
+	if(!_simPhysicsShowCase.isStarted)
+		_simPhysicsShowCase.start();
+
+	// create a new item
+	var radiosItems = document.getElementsByName("objectType");
+	for (var i = 0, length = radiosItems.length; i < length; i++)
+	{
+		if (radiosItems[i].checked)
+		{
+			var x = ((_simPhysicsShowCase.minX + _simPhysicsShowCase.maxX) / 2.0) - (_simConfigNewRopeLength / 2.0);
+			var y = (_simPhysicsShowCase.minX + _simPhysicsShowCase.maxX) / 8.0;
+
+			switch(radiosItems[i].value)
+			{
+				case NODEVALUE:
+					_simPhysicsShowCase.addPointMass(x, y, _simConfigNewRopeMass);
+					break;
+				case ROPEVALUE:
+					_simPhysicsShowCase.addRope(x, y, _simConfigNewRopeMass, _simConfigNewRopeLength, _simConfigNewRopeDistance);
+					break;
+				case CURTAINVALUE:
+					_simPhysicsShowCase.addCurtain(x, y, _simConfigNewRopeMass, _simConfigNewRopeLength, _simConfigNewRopeDistance, 0.5, _simConfigNewRopeDistance * 2);
+					break;
+				case PENDULUMVALUE:
+					setGUINewRopeDistance(80);
+					readConfigNewRopeDistance();
+					_simPhysicsShowCase.addPendulum(x, y, _simConfigNewRopeMass, _simConfigNewRopeDistance);
+					break;
+			}
+
+			// only one radio can be logically checked, don't check the rest
+			break;
+		}
+	}
 }
 
 function resetAll() {
@@ -176,18 +179,26 @@ function resetAll() {
 
 function startStopSimulation() {
 	if(_simPhysics.isStarted == true) {
+		document.getElementById("ritw-icon-play").style.display = "inline";
+		document.getElementById("ritw-icon-stop").style.display = "none";
 		_simPhysics.stop();
 	}
 	else {
+		document.getElementById("ritw-icon-play").style.display = "none";
+		document.getElementById("ritw-icon-stop").style.display = "inline";
 		_simPhysics.start();
 	}
 }
 
 function pauseResumeSim() {
 	if(_simPhysics.isPaused == true) {
+		document.getElementById("ritw-icon-resume").style.display = "none";
+		document.getElementById("ritw-icon-pause").style.display = "inline";
 		_simPhysics.resume();
 	}
 	else {
+		document.getElementById("ritw-icon-resume").style.display = "inline";
+		document.getElementById("ritw-icon-pause").style.display = "none";
 		_simPhysics.pause();
 	}
 }
@@ -214,19 +225,12 @@ function setDebug(stepCount, fps, averageUpdateTime, averageRenderTime) {
 function loadConfig() {
 	resetDebug();
 
-	// sim
-	readConfigSimulationTimeStepMode();
-	readConfigSimulationFixedDeltaT();
-	readConfigSimulationRefreshRate();
-	readConfigSimulationAccuracy();
-
 	//render
 	readConfigRenderShowNode();
 	readConfigRenderShowWind();
 	readConfigRenderWindGrid();
 
 	// config wind
-	readConfigWindCellSize();
 	readConfigWindChaosFactor();
 	readConfigWindSpeedFactor();
 
@@ -235,8 +239,6 @@ function loadConfig() {
 	readConfigNewRopePositionY();
 	readConfigNewRopeMass();
 	readConfigNewRopeLength();
-	readConfigNewRopeStiffness();
-	readConfigNewRopeMaxDistance();
 	readConfigNewRopeDistance();
 }
 
@@ -244,73 +246,34 @@ function resetDebug() {
 	setDebug(0, 0, 0, 0);
 }
 
-/* ---------------------------- *\
-|* ---- SIM CONFIG METHODS ---- *|
-\* ---------------------------- */
-
-function readConfigSimulationTimeStepMode() {
-	_simConfigSimulationIsFixed = _gui_checkBox_switchSimMode.checked;
-	_gui_spinBox_fixedDeltaT.disabled = !_simConfigSimulationIsFixed;
-}
-
-function readConfigSimulationFixedDeltaT() {
-	_simConfigSimulationFixedDeltaT = Math.floor(_gui_spinBox_fixedDeltaT.value);
-}
-
-function readConfigSimulationRefreshRate() {
-	_simConfigSimulationRefreshRate = parseFloat(1000.0 / _gui_spinBox_refreshRate.value);
-}
-
-function readConfigSimulationAccuracy() {
-	_simConfigSimulationAccuracy = Math.floor(_gui_spinBox_simAccuracy.value);
-}
-
-// set
-function setGUISimulationTimeStepMode(arg) {
-	_gui_checkBox_switchSimMode.checked = arg || _simConfigSimulationIsFixed;
-}
-
-function setGUISimulationFixedDeltaT(arg) {
-	_gui_spinBox_fixedDeltaT.value = arg || _simConfigSimulationFixedDeltaT;
-}
-
-function setGUISimulationRefreshRate(arg) {
-	_gui_spinBox_refreshRate.value = arg || _simConfigSimulationRefreshRate;
-}
-
-function setGUISimulationAccuracy(arg) {
-	_gui_spinBox_simAccuracy.value = arg || _simPhysics.accuracy;
-}
-
 /* ------------------------------- *\
 |* ---- RENDER CONFIG METHODS ---- *|
 \* ------------------------------- */
 
 function readConfigRenderShowNode() {
-	_simConfigRenderShowNodes = _gui_checkBox_renderNodes.checked;
-	if(_simPhysics != null) _simPhysics.draw();
+	
+	if(_simPhysics != null) {
+		_simPhysics.displayNodes = _gui_checkBox_renderNodes.checked;
+		_simPhysics.draw();
+	}
 }
 
 function readConfigRenderShowWind() {
-	_simConfigRenderShowWind = _gui_checkBox_renderWindVectors.checked;
-	if(_simPhysics != null) _simPhysics.draw();
+	
+	if(_simPhysics != null) 
+	{
+		_simPhysics.wind.displayVectors = _gui_checkBox_renderWindVectors.checked;
+		_simPhysics.draw();
+	}
 }
 
 function readConfigRenderWindGrid() {
-	_simConfigRenderWindGrid = _gui_checkBox_renderWindGrid.checked;
-	if(_simPhysics != null) _simPhysics.draw();
-}
-
-function setGUIRenderShowNode(arg) {
-	_gui_checkBox_renderNodes.checked = arg || _simPhysics.nodeVisible;
-}
-
-function setGUIRenderShowWind(arg) {
-	_gui_checkBox_renderWindVectors.checked = arg || _simPhysics.windVisible;
-}
-
-function setGUIRenderWindGrid(arg) {
-	_gui_checkBox_renderWindGrid.checked = arg || _simConfigRenderWindGrid;
+	
+	if(_simPhysics != null) 
+	{
+		_simPhysics.wind.displayGrid = _gui_checkBox_renderWindGrid.checked;
+		_simPhysics.draw();
+	}
 }
 
 /* ----------------------------- *\
@@ -332,36 +295,9 @@ function readConfigNewRopeLength() {
 	_simConfigNewRopeLength = MillimetersToMeters(_gui_spinBox_ropeLength.value);
 }
 
-function readConfigNewRopeStiffness() {
-	_simConfigNewRopeStiffness = _gui_spinBox_ropeStiffness.value;
-}
-
 function readConfigNewRopeDistance() {
-	// commented because it is not working as intended on reset
-	/*var maxDistanceInMM = MetersToMillimeters(_simConfigNewRopeMaxDistance);
-	if(_gui_checkBox_ropeBreakable.checked && _gui_spinBox_ropeDistance.value >= maxDistanceInMM) {
-		alert("Resting distance is too high !");
-		var tmp = maxDistanceInMM - 15;
-		setGUINewRopeDistance(tmp < 5 ? tmp : 5);
-		readConfigNewRopeDistance();
-	}
-	else {*/
-		_simConfigNewRopeDistance = MillimetersToMeters(_gui_spinBox_ropeDistance.value);
-	//}
-}
 
-function readConfigNewRopeMaxDistance() {
-	// commented because it is not working as intended on reset
-	/*var distanceInMM = MetersToMillimeters(_simConfigNewRopeDistance);
-	if(_gui_spinBox_ropeMaxDistance.value <= distanceInMM) {
-		alert("Tear sensitivity is too low !");
-		var tmp = distanceInMM - 15;
-		setGUINewRopeMaxDistance(tmp > 10 ? tmp : 10);
-		readConfigNewRopeMaxDistance();
-	}
-	else {*/
-		_simConfigNewRopeMaxDistance = MillimetersToMeters(_gui_spinBox_ropeMaxDistance.value);
-	//}
+	_simConfigNewRopeDistance = MillimetersToMeters(_gui_spinBox_ropeDistance.value);
 }
 
 // set
@@ -381,51 +317,27 @@ function setGUINewRopeLength(arg) {
 	_gui_spinBox_ropeLength.value = arg || Math.floor(MetersToMillimeters(_simConfigNewRopeLength));
 }
 
-function setGUINewRopeStiffness(arg) {
-	_gui_spinBox_ropeStiffness.value = arg || _simConfigNewRopeStiffness;
-}
-
 function setGUINewRopeDistance(arg) {
 	_gui_spinBox_ropeDistance.value = arg || Math.floor(MetersToMillimeters(_simConfigNewRopeDistance));
-}
-
-function setGUINewRopeMaxDistance(arg) {
-	_gui_spinBox_ropeMaxDistance.value = arg || Math.floor(MetersToMillimeters(_simConfigNewRopeMaxDistance));
-}
-
-// update
-function updateGUINewRopeBreakable() {
-	_gui_spinBox_ropeStiffness.disabled = !_gui_checkBox_ropeBreakable.checked;
-	_gui_spinBox_ropeMaxDistance.disabled = !_gui_checkBox_ropeBreakable.checked;
 }
 
 /* ----------------------------- *\
 |* ---- WIND CONFIG METHODS ---- *|
 \* ----------------------------- */
 
-function readConfigWindCellSize() {
-	_simConfigWindCellSize = _gui_spinBox_windGridSize.value;
-}
-
 function readConfigWindChaosFactor() {
-	_simConfigWindChaosFactor = _gui_spinBox_windEvolutionStep.value / 10000.0;
+	if(_simPhysics != null) 
+	{
+		_simPhysics.wind.chaosFactor = _gui_spinBox_windEvolutionStep.value / 10000.0;
+	}
 }
 
 function readConfigWindSpeedFactor() {
-	_simConfigWindSpeedFactor = _gui_spinBox_windForce.value;
-	document.getElementById("speedInKMH").innerHTML = (_simConfigWindSpeedFactor * 3.6).toFixed(2) + "km/h";
-}
-
-function setGUIWindCellSize(arg) {
-	_gui_spinBox_windGridSize.value = arg || _simConfigWindCellSize;
-}
-
-function setGUIWindChaosFactor(arg) {
-	_gui_spinBox_windEvolutionStep.value = arg || _simPhysics.wind.evolutionStep;
-}
-
-function setGUIWindSpeedFactor(arg) {
-	_gui_spinBox_windForce.value = arg || parseFloat(_simPhysics.windForce);
+	if(_simPhysics != null) 
+	{
+		_simPhysics.wind.windForceFactor = _gui_spinBox_windForce.value;
+		document.getElementById("speedInKMH").innerHTML = (_simPhysics.wind.windForceFactor * 3.6).toFixed(2) + "km/h";
+	}
 }
 
 /* ------------------------ *\
@@ -433,30 +345,15 @@ function setGUIWindSpeedFactor(arg) {
 \* ------------------------ */
 
 function createNewCable() {
-	if(_gui_checkBox_ropeBreakable.checked) {
-		_simArrayObjects.push(
-			_simPhysics.addElastic(
-				_simConfigNewRopePositionX,
-				_simConfigNewRopePositionY,
-				_simConfigNewRopeMass,
-				_simConfigNewRopeLength,
-				_simConfigNewRopeDistance,
-				_simConfigNewRopeStiffness,
-				_simConfigNewRopeMaxDistance
-			)
-		);
-	}
-	else {
-		_simArrayObjects.push(
-			_simPhysics.addRope(
-				_simConfigNewRopePositionX,
-				_simConfigNewRopePositionY,
-				_simConfigNewRopeMass,
-				_simConfigNewRopeLength,
-				_simConfigNewRopeDistance
-			)
-		);
-	}
+	_simArrayObjects.push(
+		_simPhysics.addRope(
+			_simConfigNewRopePositionX,
+			_simConfigNewRopePositionY,
+			_simConfigNewRopeMass,
+			_simConfigNewRopeLength,
+			_simConfigNewRopeDistance
+		)
+	);
 	_simPhysics.draw();
 }
 
@@ -472,377 +369,38 @@ function createNewPendulum() {
 }
 
 function createNewCurtain() {
-	_simPhysics.addCurtain(_simConfigNewRopePositionX, _simConfigNewRopePositionY, _simConfigNewRopeMass, _simConfigNewRopeLength, _simConfigNewRopeDistance,	_simConfigNewRopeStiffness, _simConfigNewRopeMaxDistance);
+	_simPhysics.addCurtain(_simConfigNewRopePositionX, _simConfigNewRopePositionY, _simConfigNewRopeMass, _simConfigNewRopeLength, _simConfigNewRopeDistance, 0.5, _simConfigNewRopeDistance * 2);
 	_simPhysics.draw();
 }
 
-// -------------------------- //
-// ------ PHYSIC CLASS ------ //
-// -------------------------- //
-
-function PhysicEngine() {
-	this.minX = 0;
-	this.minY = 0;
-	this.maxX = width  / PIXEL_PER_METER;
-	this.maxY = height / PIXEL_PER_METER;
-
-	// timing (use this instead of watcher.js since it lags the code by 8 ms);
-	this.previousTime = performance.now();
-
-	// physic storage
-	this.pointMasses = [];
-	this.watcherUpdating = new Watcher();
-	this.watcherRendering = new Watcher();
-	this.wind = new Wind(Math.ceil(width / _simConfigWindCellSize), Math.ceil(height / _simConfigWindCellSize), _simConfigWindCellSize);
-
-	// PUBLIC
-	this.stepCount = 0;
-
-	// intervals
-	this.updateInterval;
-
-	// controls
-	this.isPaused = false;
-	this.isStarted = false;
-
-	/* --------------- *\
-	|* --- METHODS --- *|
-	\* --------------- */
-
-	this.updateGUIControls = function() {
-		_gui_button_startStop.innerHTML = this.isStarted ? STRINGSTOP : STRINGSTART;
-		_gui_button_pauseResume.innerHTML = this.isPaused ? STRINGRESUME : STRINGPAUSE;
-	}
-
-	this.startRendering = function() {
-		// FROM : https://gist.github.com/paulirish/1579671 stoikerty, 6 Mar 2014
-		var hasPerformance = !!(window.performance && window.performance.now);
-
-		// Add new wrapper for browsers that don't have performance
-		if (!hasPerformance) {
-		    // Store reference to existing rAF and initial startTime
-		    var rAF = window.requestAnimationFrame,
-		        startTime = +new Date;
-
-		    // Override window rAF to include wrapped callback
-		    window.requestAnimationFrame = function (callback, element) {
-		        // Wrap the given callback to pass in performance timestamp
-		        var wrapped = function (timestamp) {
-		            // Get performance-style timestamp
-		            var performanceTimestamp = (timestamp < 1e12)
-		                ? timestamp
-		                : timestamp - startTime;
-
-		            return callback(performanceTimestamp);
-		        };
-
-		        // Call original rAF with wrapped callback
-		        rAF(wrapped, element);
-		    }
-		}
-
-		(function render(){
-		  requestAnimationFrame(render);
-		  _simPhysics.draw();
-		})();
-	}
-
-	this.reset = function() {
-		this.stop();
-		this.wind.reset(Math.ceil(width / _simConfigWindCellSize), Math.ceil(height / _simConfigWindCellSize), _simConfigWindCellSize);
-	}
-
-	/* ----------------------- *\
-	|* --- CONTROL METHODS --- *|
-	\* ----------------------- */
-
-	this.start = function() {
-		if(this.isStarted == true)
-			this.reset();
-		this.isStarted = true;
-		this.isPaused = true;
-
-		this.startRendering();
-
-		this.resume();
-		this.updateGUIControls();
-	}
-
-	this.step = function() {
-		if(this.isStarted == false) {
-			this.isStarted = true;
-			this.isPaused = false;
-		}
-		// pause sim
-		this.pause();
-
-		// step sim
-		this.nextStep(_simConfigSimulationFixedDeltaT);
-		this.draw();
-	}
-
-	this.pause = function() {
-		if(this.isStarted == true && this.isPaused == false) {
-			clearInterval(this.updateInterval);
-			this.isPaused = true;
-			this.updateGUIControls();
-		}
-	}
-
-	this.resume = function() {
-		if(this.isStarted == true && this.isPaused == true) {
-			this.updateInterval = setInterval(function() { _simPhysics.update(); }, 4);
-			this.isPaused = false;
-			this.updateGUIControls();
-		}
-	}
-
-	this.stop = function() {
-		this.pause();
-		this.flush();
-
-		// reset security
-		this.isStarted = false;
-		this.isPaused = false;
-
-		this.watcherUpdating = new Watcher();
-		this.watcherRendering = new Watcher();
-
-		this.maxX = width  / PIXEL_PER_METER;
-		this.maxY = height / PIXEL_PER_METER;
-
-		this.stepCount = 0;
-
-		// config render
-		readConfigRenderShowNode();
-		readConfigRenderShowWind();
-
-		// update config
-		readConfigSimulationTimeStepMode();
-
-		// reset debug GUI
-		resetDebug();
-
-		// update gui
-		this.updateGUIControls();
-
-		delete _simArrayObjects;
-
-		this.draw();
-
-		this.previousTime = performance.now();
-	}
-
-	/* ------------------------ *\
-	|* --- CREATION METHODS --- *|
-	\* ------------------------ */
-	this.flush = function() {
-		this.pointMasses.length = 0;
-		this.draw();
-	}
-
-	this.addPointMass = function(x, y, mass) {
-		var pointMass = new PointMass(x, y, mass);
-		this.pointMasses.push(pointMass);
-		return pointMass;
-	}
-
-	this.removePointMass = function(pointMass) {
-		this.pointMasses = this.pointMasses.filter(function(item) {
-			if(item !== pointMass)
+function createSelectedItem() 
+{
+	var radiosItems = document.getElementsByName("objectType");
+	for (var i = 0, length = radiosItems.length; i < length; i++)
+	{
+		if (radiosItems[i].checked)
+		{
+			switch(radiosItems[i].value)
 			{
-				return true;
-			}
-			else {
-				item.links = item.links.splice(0,item.links.length);
-				return false;
-			}
-		});
-	};
-
-	this.generateCable = function(x, y, ropeMass, length, distance, stiffness, maxDistance, isElastic) {
-		// count nodes
-		var nodeCount = Math.ceil(length / distance);
-		var nodeMass = ropeMass / nodeCount;
-
-		// get root
-		var root = this.addPointMass(x, y, nodeMass);
-		root.fixAt(x, y);
-
-		// store root as previousnode
-		var previousNode = root;
-
-		// distance used in loop
-		var d = distance;
-
-		for(var i = 1; i < nodeCount; i++) {
-			var newX = x + d * i;
-
-			if(newX > this.maxX || newX < this.minX) {
-				d = -d;
-				newX += d;
-			}
-			var node = this.addPointMass(newX, y, nodeMass);
-
-			if(isElastic) {
-				node.attachTo(previousNode, distance, stiffness, maxDistance);
-			}
-			else {
-				node.attachTo(previousNode, distance);
+				case NODEVALUE:
+					createSimplePointMass();
+					break;
+				case ROPEVALUE:
+					createNewCable();
+					break;
+				case CURTAINVALUE:
+					createNewCurtain();
+					break;
+				case PENDULUMVALUE:
+					createNewPendulum();
+					break;
 			}
 
-			// store node as root for the next one
-			previousNode = node;
+			// stop the showcase
+			_simPhysicsShowCase.stop();
+
+			// only one radio can be logically checked, don't check the rest
+			break;
 		}
-
-		// draw freshly created rope
-		this.draw();
-
-		return root;
-	};
-
-	this.addRope = function(x, y, ropeMass, length, distance) {
-		return this.generateCable(x, y, ropeMass, length, distance, 0, 0, false);
-	};
-
-	this.addElastic = function(x, y, ropeMass, length, distance, stiffness, maxDistance) {
-		return this.generateCable(x, y, ropeMass, length, distance, stiffness, maxDistance, true);
-	};
-
-	this.addCurtain = function(x, y, mass, length, distance, stiffness, maxDistance) {
-
-		// temp vars
-		var node;
-		var curtain = [];
-
-		var width = Math.floor(length / distance);
-		var height = width;
-
-		var nodeMass = parseFloat(mass / (width * height));
-		var breakable = _gui_checkBox_ropeBreakable.checked;
-
-		// create the curtain
-	  for (var j = 0; j < width; j++) {
-			curtain[j] = [];
-	    for (var i = 0; i < height; i++) {
-	      node = this.addPointMass(x + i * distance, y + j * distance, nodeMass);
-
-	      if (i != 0)
-				{
-					if(breakable) {
-						node.attachTo(curtain[j][i - 1], distance, stiffness, maxDistance);
-					}
-					else {
-						node.attachTo(curtain[j][i - 1], distance);
-					}
-				}
-	      // the index for the PointMasss are one dimensions,
-	      // so we convert x,y coordinates to 1 dimension using the formula y*width+x
-	      if (j != 0)
-				{
-					if(breakable) {
-						node.attachTo(curtain[j - 1][i], distance, stiffness, maxDistance);
-					}
-					else {
-						node.attachTo(curtain[j - 1][i], distance);
-					}
-				}
-
-	      // we pin the very top PointMasss to where they are
-	      if (j == 0)
-	        node.fixAt(node.x, node.y);
-
-				// store the point
-				curtain[j].push(node);
-	    }
-	  }
-
-		// draw freshly created rope
-		this.draw();
-
 	}
-
-	this.addPendulum = function(x, y, mass, distance) {
-		//var rand = Math.random();
-		var root = this.addPointMass(x, y, 10);
-		var pendulum1 = this.addPointMass(x + 0.01, y - distance, mass);
-		var pendulum2 = this.addPointMass(x + 0.01, y - distance * 2, mass);
-
-		pendulum2.attachTo(pendulum1, distance);
-		pendulum1.attachTo(root, distance);
-		root.fixAt(x, y);
-
-		return root;
-	}
-
-	/* ------------------------ *\
-	|* --- HANDLING METHODS --- *|
-	\* ------------------------ */
-
-	this.nextStep = function(deltaTimeMS) {
-
-		// start the timer
-		this.watcherUpdating.start();
-
-		// slice time
-		let deltaTimeSChunck = parseFloat(deltaTimeMS / (1000.0 * _simConfigSimulationAccuracy));
-
-		for (let x = 0; x < _simConfigSimulationAccuracy; x++) {
-			// update each PointMass's position
-			for (let i = 0; i < this.pointMasses.length; this.pointMasses[i++].update(deltaTimeSChunck, this.wind));
-			for (let i = 0; i < this.pointMasses.length; this.pointMasses[i++].solveConstraints(this.minX, this.minY, this.maxX, this.maxY));
-		}
-
-		// step wind simulation
-		this.wind.step();
-
-		// increase step
-		this.stepCount++;
-
-		// store deltaT
-		this.watcherUpdating.stop();
-	};
-
-	this.update = function() {
-		// dt
-		var currentTime = performance.now();
-		var dt = parseFloat(currentTime - this.previousTime);
-
-		if(dt + this.watcherUpdating.averageTime >= _simConfigSimulationRefreshRate) {
-			// refresh previous time
-			this.previousTime = currentTime;
-
-			// step simulation
-			if(_simConfigSimulationIsFixed) {
-				this.nextStep(_simConfigSimulationFixedDeltaT);
-			}
-			else {
-				let fps = this.watcherUpdating.fps || _gui_spinBox_refreshRate.value;
-				let dtms = Math.floor(1000.0 / fps);
-				_gui_spinBox_fixedDeltaT.value = dtms;
-				this.nextStep(dtms);
-			}
-		}
-	};
-
-	this.draw = function() {
-		// init
-		this.watcherRendering.start();
-
-		// clear context
-		context.clearRect(this.minX, this.minY, width, height);
-
-		// draw wind vectors
-		this.wind.draw(context);
-
-		// draw points and links
-		for(let i = 0; i < this.pointMasses.length; this.pointMasses[i++].draw(context, _simConfigRenderShowNodes));
-
-		// store deltaT
-		this.watcherRendering.stop();
-	};
 }
-
-// --------------------------- //
-// --- END OF PHYSIC CLASS --- //
-// --------------------------- //

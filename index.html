@@ -11,97 +11,138 @@
 		<title>Numerical algorithm - Personal project - A rope in the wind</title>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 	</head>
 	<body>
 		<div id="main-wrap">
 			<div id="left-wrap" class="wrap">
 				<div id="control" class="config">
-					<h1>A rope in the wind©</h1>
-					<h3>By Segan Salomon, April-May 2018</h3>
+					<h1>A rope in the wind</h1>
 					<div class="separator"></div>
 					<div id="control-buttons" class="container">
 						<table>
 							<tr>
-							 <td><button type="button" class="stylizedButton" id="btnStartStop" onclick="startStopSimulation()">Start</button></td>
-							 <td><button type="button" class="stylizedButton" id="btnPauseResume" onclick="pauseResumeSim()">Pause</button></td>
-							 <td><button type="button" class="stylizedButton" id="btnResetPage" onclick="resetAll()">Reset</button></td>
-						 </tr>
+								<td>
+									<button type="button" class="stylizedButton" id="btnStartStop" onclick="startStopSimulation()">
+										<span id="ritw-icon-play" style="font-size: 18px; color:white;">
+											<i class="fas fa-play"></i>
+										</span>
+										<span id="ritw-icon-stop" style="font-size: 18px; color:white; display: none">
+											<i class="fas fa-stop"></i>
+										</span>
+									</button>
+								</td>
+								<td>
+									<button type="button" class="stylizedButton" id="btnPauseResume" onclick="pauseResumeSim()">
+										<span id="ritw-icon-resume" style="font-size: 18px; color:white; display: none">
+											<i class="fas fa-play"></i>
+										</span>
+										<span id="ritw-icon-pause" style="font-size: 18px; color:white;">
+											<i class="fas fa-pause"></i>
+										</span>
+									</button>
+								</td>
+								<td>
+									<button type="button" class="stylizedButton" id="btnStemSim" onclick="stepSimulation()">
+										<span style="font-size: 18px; color:white;">
+											<i class="fas fa-step-forward"></i>
+										</span>
+									</button>
+								</td>
+								<td>
+									<button type="button" class="stylizedButton" id="btnResetPage" onclick="resetAll()">
+										<span style="font-size: 18px; color:white;">
+											<i class="fas fa-redo"></i>
+										</span>
+									</button>
+								</td>
+								<td>
+									<button type="button" class="stylizedButton" id="btnFlushSim" onclick="flushSimulation()">
+										<span style="font-size: 18px; color:white;">
+											<i class="fas fa-recycle"></i>
+										</span>
+									</button>
+								</td>
+							</tr>
 						</table>
 					</div>
+
 					<div class="separator"></div>
+
 					<div id="control-step" class="kit">
-						<div id="control-step-spinBoxes">
-							<table>
-								<tr>
-									<td>
-										<label>Fixed deltaT</label>
-										<input type="checkbox" id="chbSwitchMode" onclick="readConfigSimulationTimeStepMode()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Time (in ms) between update</legend>
-										<input  type="number" id="spinBoxStepMS"  min=4 value=16 step=1 max=60 onchange="readConfigSimulationFixedDeltaT()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Target refresh rate</legend>
-										<input  type="number" id="spinBoxHertz"   min=1 value=60 step=1 max=120 onchange="readConfigSimulationRefreshRate()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Accuracy (number of loop)</legend>
-										<input type="number" id="spinBoxAccuracy" min=1.0 value=3 max=10 step=1 onchange="readConfigSimulationAccuracy()"/>
-									</td>
-								</tr>
-							</table>
-						</div>
-						<div id="control-step-buttons">
-							<button type="button" class="stylizedButton" id="btnStemSim" onclick="stepSimulation()">Step</button>
-							<button type="button" class="stylizedButton" id="btnFlushSim" onclick="flushSimulation()">Flush</button>
-							<table>
-								<tr>
-									<td><input type="checkbox" id="chbShowNode" onclick="readConfigRenderShowNode()"/></td>
-									<td>Show nodes</td>
-								</tr>
-								<tr>
-									<td><input type="checkbox" id="chbShowWind" onclick="readConfigRenderShowWind()"/></td>
-									<td>Show wind vectors</td>
-								</tr>
-								<tr>
-									<td><input type="checkbox" id="chbShowGrid" onclick="readConfigRenderWindGrid()"/></td>
-									<td>Show wind grid</td>
-								</tr>
-							</table>
-						</div>
-						<div class="separator"></div>
-						<div id="wind-kit" class="kit">
-							<h3>Wind config</h3>
-							<table>
-								<tr>
-									<td>Grid size</td>
-									<td><input type="number" id="spinBoxWindSize" 	min=12 value=36 step=1 max=50 onchange="readConfigWindCellSize()"/></td>
-									<td><i>(Take place on reset)</i></td>
-								</tr>
-								<tr>
-									<td>Chaos factor</td>
-									<td><input type="number" id="spinBoxWindZ" 			min=1 value=17  step=1 max=30 onchange="readConfigWindChaosFactor()"/></td>
-									<td><i>(Evolution step of the wind)</i></td>
-								</tr>
-								<tr>
-									<td>Speed factor</td>
-									<td><input type="number" id="spinBoxWindForce" 	min=0 value=10 step=1 max=40 onchange="readConfigWindSpeedFactor()"/></td>
-									<td>(m/s)</td>
-								</tr>
-								<tr>
-									<td><p>Wind speed</p></td>
-									<td id="speedInKMH" style="font-style: oblique;"></td>
-								</tr>
-							</table>
+
+						<div class="ritw-div-items">
+							<div class="ritw-div-items-selector">
+								<h4>Item selection</h4>
+								<p>
+									<input type="radio" id="ritw-rb-node" name="objectType" class="ritw-rb" value="node" onclick="updateShowCase()">
+									<label for="ritw-rb-node" class="ritw-rb-label">Node</label>
+								</p>
+								<p>
+									<input type="radio" id="ritw-rb-rope" name="objectType" class="ritw-rb" value="rope" onclick="updateShowCase()" checked>
+									<label for="ritw-rb-rope" class="ritw-rb-label">Rope</label>
+								</p>
+								<p>
+									<input type="radio" id="ritw-rb-curtain" name="objectType" class="ritw-rb" value="curtain" onclick="updateShowCase()">
+									<label for="ritw-rb-curtain" class="ritw-rb-label">Curtain</label>
+								</p>
+								<p>
+									<input type="radio" id="ritw-rb-pendulum" name="objectType" class="ritw-rb" value="pendulum" onclick="updateShowCase()">
+									<label for="ritw-rb-pendulum" class="ritw-rb-label">Pendulum</label>
+								</p>
+								
+							</div>
+
+							<div class="ritw-div-items-customization">
+								<h4>Customization</h4>
+								<label>
+									<input type="range" class="slider" id="spinBoxNewRopeLength" min=10 value=150 step=10 max=1000 onchange="readConfigNewRopeLength(); updateShowCase();"/>
+									<span>Total length (mm)</span>
+								</label>
+	
+								<label>
+									<input type="range" class="slider" id="spinBoxNewNodeMass" min=10.0 value=500 step=10 max=10000 onchange="readConfigNewRopeMass(); updateShowCase();"/>
+									<span>Total mass (g)</span>
+								</label>
+
+								<label>
+									<input type="range" class="slider" id="spinBoxNewRopeDistance" min=5.0 value=15 step=5.0 max=100 onchange="readConfigNewRopeDistance(); updateShowCase();"/>
+									<span>Distance between 2 nodes (mm)</span>
+								</label>
+
+							</div>
+
+							<div id="ritw-div-showcase">
+								<canvas id="ritw-div-showcase-canevas">
+									Live showcase
+								</canvas>
+							</div>
+
+
+							<div class="ritw-div-items-location">
+								<label>
+									<span>Location (X-axis)</span>
+									<input type="range" class="slider" id="spinBoxNewRopeX" min=0 value=100 step=1 onclick="readConfigNewRopePositionX()"/>
+								</label>
+
+								<label>
+									<span>Location (Y-axis)</span>
+									<input type="range" class="slider" id="spinBoxNewRopeY" min=0 value=100 step=1 onclick="readConfigNewRopePositionY()"/>
+								</label>
+							</div>
+
+							<button type="button" class="stylizedButton" id="btnCreateObject" onclick="createSelectedItem()">Create selected object</button>
 						</div>
 					</div>
+
+					<div class="separator"></div>
+
+					<h3>By Segan Salomon, April-May 2018</h3>
+					<p>
+						<i>
+							A Rope In The Wind was created as part of the @HE-Arc 's numerical algorithms course as individual work.
+						</i>
+					</p>
 				</div>
 			</div>
 
@@ -148,68 +189,72 @@
 							</table>
 						</div>
 					</div>
+
 					<div class="separator"></div>
-					<div id="creation-kit" class="kit">
-						<h3>Creation kit</h3>
-						<div id="creation-kit-tools">
-							<table>
-								<tr>
-									<td>
-										<legend>x</legend>
-										<input type="number" id="spinBoxNewRopeX" min=0 value=100 step=1 onclick="readConfigNewRopePositionX()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>y</legend>
-										<input type="number" id="spinBoxNewRopeY" min=0 value=100 step=1 onclick="readConfigNewRopePositionY()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Rope length (mm)</legend>
-										<input type="number" id="spinBoxNewRopeLength" min=10 value=150 step=10 max=1000 onchange="readConfigNewRopeLength()"/>
-									</td>
-									<td</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Rope mass (g)</legend>
-										<input type="number" id="spinBoxNewNodeMass" min=10.0 value=500 step=10 max=10000 onchange="readConfigNewRopeMass()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Distance between nodes (mm)</legend>
-										<input type="number" id="spinBoxNewRopeDistance" 	min=5.0  value=15  step=5.00 max=100 onchange="readConfigNewRopeDistance()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<input type="checkbox" id="checkBoxNewRopeBreakable" onclick="updateGUINewRopeBreakable();">Breakable</input>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Stiffness of the link</legend>
-										<input type="number" id="spinBoxNewRopeStiffness" min=0.05 value=0.5 step=0.05 max=001 onchange="readConfigNewRopeStiffness()"/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<legend>Tear sensitivity of the link (mm)</legend>
-										<input type="number" id="spinBoxNewRopeMaxDistance" min=10.0	 value=30  step=5.00 max=200 onchange="readConfigNewRopeMaxDistance()"/>
-									</td>
-								</tr>
-							</table>
+
+					<div id="control-buttons" class="container">
+						<h3>Display config</h3>
+						<p>
+							<input type="checkbox" checked="checked" id="chbShowNode" onclick="readConfigRenderShowNode()"/>
+							<label for="chbShowNode">
+								<span class="ui"></span>
+								<span class="text"> nodes</span>
+							</label>
+						</p>
+						<p>
+							<input type="checkbox" checked="checked" id="chbShowWind" onclick="readConfigRenderShowWind()"/>
+							<label for="chbShowWind">
+								<span class="ui"></span>
+								<span class="text"> wind vectors</span>
+							</label>
+						</p>
+						<p>
+							<input type="checkbox" id="chbShowGrid" onclick="readConfigRenderWindGrid()"/>
+							<label for="chbShowGrid">
+								<span class="ui"></span>
+								<span class="text"> wind grid</span>
+							</label>
+						</p>
+					</div>
+
+					<div class="separator"></div>
+
+					<!-- WIND CONFIG -->
+					<div id="wind-kit" class="kit">
+						<h3>Wind config</h3>
+						<div class="slidecontainer">
+							<label for="spinBoxWindZ">Chaos factor</label>
+							<input type="range" id="spinBoxWindZ" class="slider" min=1 value=17 step=1 max=30 onchange="readConfigWindChaosFactor()"/>
+							<i>(Evolution of the wind)</i>
 						</div>
-						<div id="creation-kit-buttons">
-							<button type="button" class="stylizedButton" id="btnCreateNewPointMass" onclick="createSimplePointMass()">New pointMass</button></p>
-							<button type="button" class="stylizedButton" id="btnCreateNewCable" onclick="createNewCable()">New cable</button></p>
-							<button type="button" class="stylizedButton" id="btnCreateNewPendulum" onclick="createNewPendulum()">New pendulum</button></p>
-							<button type="button" class="stylizedButton" id="btnCreateNewCurtain" onclick="createNewCurtain()">New curtain</button></p>
-							<p><i>Simply click anywhere on the canvas to set a new position where newly created object will be anchored</i></p>
+							
+						<div class="slidecontainer">
+							<label for="spinBoxWindForce">Speed factor</label>
+							<input type="range" id="spinBoxWindForce" class="slider" min=0 value=10 step=1 max=40 onchange="readConfigWindSpeedFactor()"/>
+							<i>(m/s)</i>
 						</div>
+
+						<p>
+							Wind speed : 
+							<i id="speedInKMH" style="font-style: oblique; "></i>
+						</p>
+					</div>
+					<!-- END OF WIND CONFIG -->
+
+
+					<div id="ritw-div-help" class="kit">
+						<h3>Help & Tips</h3>
+						<p>
+							Choose your item on the left panel, adjust his properties at your wish and than create it by pressing the "Create selected object" button.
+						</p>
+						<p>
+							Than simply click anywhere on the canvas to set a new position where newly created object will be anchored.
+						</p>
+						<p style="float:right">
+							<i>
+								Updated, 18 November 2018
+							</i>
+						</p>
 					</div>
 				</div>
 			</div>
@@ -297,6 +342,7 @@
 	<script type="text/javascript" src="pointMass.js"></script>
 	<script type="text/javascript" src="link.js"></script>
 	<script type="text/javascript" src="watcher.js"></script>
+	<script type="text/javascript" src="physicEngine.js"></script>
 	<script type="text/javascript" src="main.js"></script>
 	<script>
 		var sides = document.getElementById("simulator").getBoundingClientRect();
@@ -311,5 +357,11 @@
 			readConfigNewRopePositionX();
 			readConfigNewRopePositionY();
 		};
+
+
+		// Set max values
+		document.getElementById("spinBoxNewRopeX").max = canvas.width;
+		document.getElementById("spinBoxNewRopeY").max = canvas.height;
+
 	</script>
 </html>
