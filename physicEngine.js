@@ -30,6 +30,7 @@ class PhysicEngine {
 		this.accuracy = 3;
 		this.fixedSimulationRefreshRate = false;
 		this.simulationRefreshRateTarget = 1000.0 / this.fixedDeltaT;
+		this.drawAnchor = false;
 
 		// intervals
 		this.updateInterval;
@@ -38,42 +39,13 @@ class PhysicEngine {
 		// controls
 		this.isPaused = false;
 		this.isStarted = false;
+
+		this.start();
 	}
 
 	/* --------------- *\
 	|* --- METHODS --- *|
 	\* --------------- */
-
-	startRendering() {
-		/*
-		// FROM : https://gist.github.com/paulirish/1579671 stoikerty, 6 Mar 2014
-		var hasPerformance = !!(window.performance && window.performance.now);
-
-		// Add new wrapper for browsers that don't have performance
-		if (!hasPerformance) {
-			// Store reference to existing rAF and initial startTime
-			var rAF = window.requestAnimationFrame, startTime = +new Date;
-
-			// Override window rAF to include wrapped callback
-			window.requestAnimationFrame = function (callback, element) {
-				// Wrap the given callback to pass in performance timestamp
-				var wrapped = function (timestamp) {
-					// Get performance-style timestamp
-					var performanceTimestamp = (timestamp < 1e12)
-						? timestamp
-						: timestamp - startTime;
-					return callback(performanceTimestamp);
-				};
-				// Call original rAF with wrapped callback
-				rAF(wrapped, element);
-			};
-		}
-		(function render() {
-			requestAnimationFrame(render);
-			this.draw();
-		})();
-		*/
-	};
 
 	reset() {
 		this.stop();
@@ -88,8 +60,6 @@ class PhysicEngine {
 			this.reset();
 		this.isStarted = true;
 		this.isPaused = true;
-		let that = this;
-		this.drawingInterval = setInterval(function() { that.draw() }, 1);
 		this.resume();
 	};
 
@@ -319,6 +289,26 @@ class PhysicEngine {
 
 		// draw points and links
 		for (let i = 0; i < this.pointMasses.length; this.pointMasses[i++].draw(this.renderTarget, this.displayNodes));
+
+		if(this.drawAnchor)
+		{
+			// draw next anchor point
+			let iniStrokeStyle = this.renderTarget.strokeStyle;
+			let iniFillStyle = this.renderTarget.fillStyle;
+
+			this.renderTarget.beginPath();
+
+			// Set anchor color
+			this.renderTarget.strokeStyle = this.renderTarget.fillStyle = "#0000FF";
+
+			// x, y, radius, starting angle, ending angle
+			this.renderTarget.arc(_simConfigNewRopePositionX * PIXEL_PER_METER, _simConfigNewRopePositionY * PIXEL_PER_METER, 5, 0, 2 * Math.PI, true);
+			this.renderTarget.fill();
+
+			// restor context
+			this.renderTarget.strokeStyle = iniStrokeStyle;
+			this.renderTarget.fillStyle = iniFillStyle;
+		}
 
 		// store deltaT
 		this.watcherRendering.stop();
