@@ -23,7 +23,7 @@
 						<table>
 							<tr>
 								<td>
-									<button type="button" class="stylizedButton" id="btnStartStop" onclick="startStopSimulation()">
+									<button type="button" class="stylizedButton" title="start/stop simulation" id="btnStartStop" onclick="startStopSimulation()">
 										<span id="ritw-icon-play" style="font-size: 18px; color:white;">
 											<i class="fas fa-play"></i>
 										</span>
@@ -33,33 +33,30 @@
 									</button>
 								</td>
 								<td>
-									<button type="button" class="stylizedButton" id="btnPauseResume" onclick="pauseResumeSim()">
-										<span id="ritw-icon-resume" style="font-size: 18px; color:white; display: none">
-											<i class="fas fa-play"></i>
-										</span>
-										<span id="ritw-icon-pause" style="font-size: 18px; color:white;">
+									<button type="button" class="stylizedButton" title="pause/resume simulation" id="btnPauseResume" onclick="pauseResumeSim()">
+										<span id="ritw-icon-pause" style="font-size: 18px; color:white; background: transparent;">
 											<i class="fas fa-pause"></i>
 										</span>
 									</button>
 								</td>
 								<td>
-									<button type="button" class="stylizedButton" id="btnStemSim" onclick="stepSimulation()">
+									<button type="button" class="stylizedButton" title="step the simulation" id="btnStemSim" onclick="stepSimulation()">
 										<span style="font-size: 18px; color:white;">
 											<i class="fas fa-step-forward"></i>
 										</span>
 									</button>
 								</td>
 								<td>
-									<button type="button" class="stylizedButton" id="btnResetPage" onclick="resetAll()">
+									<button type="button" class="stylizedButton" title="reset the page" id="btnResetPage" onclick="resetAll()">
 										<span style="font-size: 18px; color:white;">
 											<i class="fas fa-redo"></i>
 										</span>
 									</button>
 								</td>
 								<td>
-									<button type="button" class="stylizedButton" id="btnFlushSim" onclick="flushSimulation()">
+									<button type="button" class="stylizedButton" title="flush objects" id="btnFlushSim" onclick="flushSimulation()">
 										<span style="font-size: 18px; color:white;">
-											<i class="fas fa-recycle"></i>
+											<i class="fas fa-trash"></i>
 										</span>
 									</button>
 								</td>
@@ -107,7 +104,7 @@
 
 								<label>
 									<input type="range" class="slider" id="spinBoxNewRopeDistance" min=5.0 value=15 step=5.0 max=100 onchange="readConfigNewRopeDistance(); updateShowCase();"/>
-									<span>Distance between 2 nodes (mm)</span>
+									<span>Spacing (mm)</span>
 								</label>
 
 							</div>
@@ -131,7 +128,7 @@
 								</label>
 							</div>
 
-							<button type="button" class="stylizedButton" id="btnCreateObject" onclick="createSelectedItem()">Create selected object</button>
+							<button type="button" class="stylizedButton" title="create selected object at the blue dot's location" id="btnCreateObject" onclick="createSelectedItem()">Create selected object</button>
 						</div>
 					</div>
 
@@ -245,7 +242,7 @@
 					<div id="ritw-div-help" class="kit">
 						<h3>Help & Tips</h3>
 						<p>
-							Choose your item on the left panel, adjust his properties at your wish and than create it by pressing the "Create selected object" button.
+							Choose your item on the left panel, adjust his properties at your wish and then create it by pressing the "Create selected object" button.
 						</p>
 						<p>
 							Than simply click anywhere on the canvas to set a new position where newly created object will be anchored.

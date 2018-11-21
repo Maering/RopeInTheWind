@@ -127,6 +127,7 @@ function init() {
 
 	// disable vectors rendering
 	_simPhysicsShowCase.wind.displayVectors = false;
+	_simPhysics.drawAnchor = true;
 	updateShowCase();
 }
 
@@ -192,13 +193,11 @@ function startStopSimulation() {
 
 function pauseResumeSim() {
 	if(_simPhysics.isPaused == true) {
-		document.getElementById("ritw-icon-resume").style.display = "none";
-		document.getElementById("ritw-icon-pause").style.display = "inline";
+		document.getElementById("btnPauseResume").style.backgroundColor = "#4CAF50";
 		_simPhysics.resume();
 	}
 	else {
-		document.getElementById("ritw-icon-resume").style.display = "inline";
-		document.getElementById("ritw-icon-pause").style.display = "none";
+		document.getElementById("btnPauseResume").style.backgroundColor = "#3C5F30";
 		_simPhysics.pause();
 	}
 }
